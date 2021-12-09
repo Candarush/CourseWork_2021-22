@@ -1,6 +1,7 @@
 import sqlite3
 
-class my_db():
+
+class MyDb():
 
     def __init__(self, bd):
         self.bd = bd
@@ -23,7 +24,8 @@ class my_db():
                     buyer_id integer primary key autoincrement,
                     name char(16),
                     surname char(16),
-                    discount double 
+                    discount double,
+                    phone char(16)
                 )""")
         self.curr.execute("""
                 create table if not exists Store(
@@ -50,11 +52,21 @@ class my_db():
         """
         self.curr.execute(""" 
         SELECT Products.name,Products.price,article,Buyers.name,Buyers.surname,
-        Buyers.discount,Store.name,Store.address,buy_date FROM History
+        Buyers.discount,Buyers.phone,Buyers.status,Store.name,Store.address,buy_date FROM History
         join Products on History.product_id=Products.product_id
         join Buyers on History.buyer_id=Buyers.buyer_id
         join Store on History.store_id=Store.store_id
-        
+
+        """)
+        return self.curr.fetchall()
+
+    def get_buyers(self):
+        """
+        Таблица покупателей.
+        Возвращает список из кортежей, где каждый кортеж - Имя, Фамилимя,скидка, телефон, клубный статус
+        """
+        self.curr.execute("""
+        select name, surname,discount,phone,status from Buyers
         """)
         return self.curr.fetchall()
 
@@ -103,6 +115,20 @@ class my_db():
         elif user == 0:
             return 0
 
+    def insert_into_buyers(self, name, surname, discount, phone, status):
+        """
+        Заносит запись в таблицу с информаицей о покупателях
+        :param name: str
+        :param surname: str
+        :param discount: float
+        :param phone: str
+        :param status: str
+        :return: None
+        """
+        self.curr.execute(
+            f"""INSERT INTO Buyers(name,surname,discount,phone,status) VALUES('{name}','{surname}',{discount},'{phone}','{status}')""")
+        self.bd.commit()
+
     def close_con(self):
         """Закрывает соединение с базой"""
         self.bd.close()
@@ -112,6 +138,6 @@ class my_db():
         print(f"{tablename} contents:\n", self.curr.fetchall())
 
 
-
 if __name__ == '__main__':
-    db = my_db(sqlite3.connect('db.sqlite'))
+    db = MyDb(sqlite3.connect('db.sqlite'))
+    print(db.get_buyers())
