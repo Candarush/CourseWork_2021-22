@@ -5,16 +5,17 @@ from PyQt5.QtCore import QSize, Qt, pyqtSlot
 from PyQt5.QtGui import QFont, QTextLine
 from PyQt5.QtWidgets import QApplication, QLabel, QLineEdit, QMainWindow, QPushButton, QTableWidget, QTableWidgetItem, QWidget
 import sys
+sys.path.insert(0, './Program')
 from database import my_db
 import sqlite3
-
-app = QApplication(sys.argv)
 
 class MainWindow(QMainWindow):
 	def __init__(self):
 		super().__init__()
-
 		self.db = my_db(sqlite3.connect('db.sqlite'))
+		self.db.debug_print("Authorization")
+
+		print("Interface initialized.")
 
 		self.setWindowTitle("IMag")
 		self.setFixedSize(QSize(1000, 600))
@@ -45,10 +46,13 @@ class MainWindow(QMainWindow):
 		
 	def login(self):
 		response = self.db.check_user_in_authorization(self.login_linedit.text(), self.password_lineedit.text())
+		self.initialize_main_window()
 		if response == 1:
 			self.initialize_main_window()
+			print("Password is correct. Opening main view.")
 		else:
 			self.password_lineedit.setText("")
+			print("Password is not correct. Login", self.login_linedit.text(), ", Password:" + self.password_lineedit.text())
 	
 	def initialize_main_window(self):
 		self.login_area.setParent(None)
@@ -132,12 +136,11 @@ class MainWindow(QMainWindow):
 		while self.main_table.columnCount() > 0: 
 			self.main_table.removeColumn(0)
 		
+def init():
+	app = QApplication(sys.argv)
 
+	window = MainWindow()
+	window.login_linedit.setText('admin')
+	window.password_lineedit.setText('1111')
 
-
-
-window = MainWindow()
-window.login_linedit.setText('admin')
-window.password_lineedit.setText('1111')
-
-app.exec()
+	app.exec()

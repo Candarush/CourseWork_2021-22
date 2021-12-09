@@ -1,6 +1,5 @@
 import sqlite3
 
-
 class my_db():
 
     def __init__(self, bd):
@@ -107,6 +106,12 @@ class my_db():
     def close_con(self):
         """Закрывает соединение с базой"""
         self.bd.close()
+
+    def debug_print(self, tablename):
+        self.curr.execute(f"""SELECT * FROM '{tablename}'""")
+        print(f"{tablename} contents:\n", self.curr.fetchall())
+
+
 
 if __name__ == '__main__':
     db = my_db(sqlite3.connect('db.sqlite'))
