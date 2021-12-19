@@ -134,8 +134,10 @@ class MyDb():
         self.bd.close()
 
     def debug_print(self, tablename):
-        self.curr.execute(f"""SELECT * FROM '{tablename}'""")
-        print(f"{tablename} contents:\n", self.curr.fetchall())
+        request = f"""SELECT * FROM {tablename}"""
+        print('Request:', request)
+        self.curr.execute(request)
+        print(f"{tablename} contents:", self.curr.fetchall())
 
 
 if __name__ == '__main__':

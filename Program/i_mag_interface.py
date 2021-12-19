@@ -3,7 +3,7 @@ from PyQt5 import QtWidgets
 from PyQt5 import QtCore
 from PyQt5.QtCore import QSize, Qt, pyqtSlot
 from PyQt5.QtGui import QFont, QTextLine
-from PyQt5.QtWidgets import QApplication, QLabel, QLineEdit, QMainWindow, QPushButton, QTableWidget, QTableWidgetItem, \
+from PyQt5.QtWidgets import QApplication, QDialog, QLabel, QLineEdit, QMainWindow, QPushButton, QTableWidget, QTableWidgetItem, \
 	QWidget
 import sys
 
@@ -15,8 +15,7 @@ import sqlite3
 class MainWindow(QMainWindow):
 	def __init__(self):
 		super().__init__()
-		self.db = my_db(sqlite3.connect('db.sqlite'))
-		self.db.debug_print("Authorization")
+		self.db = MyDb(sqlite3.connect(sys.path[1]+'/db.sqlite'))
 
 		print("Interface initialized.")
 
@@ -49,13 +48,14 @@ class MainWindow(QMainWindow):
 
 	def login(self):
 		response = self.db.check_user_in_authorization(self.login_linedit.text(), self.password_lineedit.text())
-		self.initialize_main_window()
+		print(self.login_linedit.text(), self.password_lineedit.text(), response)
+		self.db.debug_print('Authorization')
 		if response == 1:
 			self.initialize_main_window()
 			print("Password is correct. Opening main view.")
 		else:
-			self.password_lineedit.setText("")
-			print("Password is not correct. Login", self.login_linedit.text(),
+			self.password_lineedit.setText('')
+			print("Password is not correct. Login:", self.login_linedit.text(),
 				  ", Password:" + self.password_lineedit.text())
 
 	def initialize_main_window(self):
@@ -70,7 +70,7 @@ class MainWindow(QMainWindow):
 		self.main_table.setSizeAdjustPolicy(QtWidgets.QAbstractScrollArea.AdjustToContents)
 		self.main_table.setVerticalScrollBarPolicy(QtCore.Qt.ScrollBarAlwaysOn);
 
-		self.history_button = QPushButton('История покупок', self.main_area)
+		self.history_button = QPushButton('Все покупки', self.main_area)
 		self.history_button.setGeometry(20, 20, 100, 25)
 		self.history_button.clicked.connect(self.show_history)
 
@@ -97,10 +97,18 @@ class MainWindow(QMainWindow):
 		self.product_buyers_article_lineedit.setGeometry(370, 47, 229, 25)
 		self.product_buyers_article_lineedit.setAlignment(Qt.AlignCenter)
 
+		self.show_buyers_button = QPushButton('Показать покупателей', self.main_area)
+		self.show_buyers_button.setGeometry(609, 20, 230, 25)
+		self.show_buyers_button.clicked.connect(self.show_buyers)
+		
+		self.show_buyers_button = QPushButton('Добавить покупателя', self.main_area)
+		self.show_buyers_button.setGeometry(609, 47, 230, 25)
+		self.show_buyers_button.clicked.connect(self.show_addbuyer_dialog)
+
 	def show_history(self):
 		history = self.db.select_all()
 		self.show_table_data(history,
-							 ['Название товара', 'Цена', 'Артикул', 'Имя покупателя', 'Фамилия покупателя', 'Скидка',
+							 ['Название товара', 'Цена', 'Артикул', 'Имя покупателя', 'Фамилия покупателя', 'Скидка', 'Телефон','Клубный статус',
 							  'Название магазина', 'Адрес магазина', 'Дата покупки'])
 
 	def show_bought_products(self):
@@ -113,18 +121,18 @@ class MainWindow(QMainWindow):
 	def show_product_buyers(self):
 		bought_products = self.db.get_by_article(self.product_buyers_article_lineedit.text())
 		self.show_table_data(bought_products,
-							 ['Название товара', 'Цена', 'Фамилия покупателя', 'Имя покупателя', 'Скидка',
+							 ['Название товара', 'Цена', 'Фамилия покупателя', 'Имя покупателя', 'Скидка', 'Телефон','Клубный статус',
 							  'Название магазина', 'Адрес магазина', 'Дата покупки'])
+
+	def show_buyers(self):
+		bought_products = self.db.get_buyers()
+		self.show_table_data(bought_products,
+							 ['Имя покупателя', 'Фамилия покупателя', 'Скидка', 'Телефон','Клубный статус'])
 
 	def show_table_data(self, data, lables=['']):
 		self.clear_main_table()
 		if (len(data)) == 0:
-			self.main_table.setColumnCount(1)
-			self.main_table.insertRow(0)
-			self.main_table.setItem(0, 0, QTableWidgetItem('Информация не найдена'))
-			self.main_table.resizeColumnsToContents()
-			self.main_table.verticalHeader().setVisible(False)
-			self.main_table.horizontalHeader().setVisible(False)
+			self.displayError()
 			print('No data found to fill the table.')
 			return
 		self.main_table.verticalHeader().setVisible(True)
@@ -140,12 +148,54 @@ class MainWindow(QMainWindow):
 		self.main_table.setHorizontalHeaderLabels(lables)
 		self.main_table.resizeColumnsToContents()
 
+	def displayError(self):
+		self.main_table.setColumnCount(1)
+		self.main_table.insertRow(0)
+		self.main_table.setItem(0, 0, QTableWidgetItem('Информация не найдена'))
+		self.main_table.resizeColumnsToContents()
+		self.main_table.verticalHeader().setVisible(False)
+		self.main_table.horizontalHeader().setVisible(False)
+
 	def clear_main_table(self):
 		self.main_table.clearContents()
 		while self.main_table.rowCount() > 0:
 			self.main_table.removeRow(0)
 		while self.main_table.columnCount() > 0:
 			self.main_table.removeColumn(0)
+
+	def show_addbuyer_dialog(self):
+		self.dialog = QDialog()
+		self.dialog.setAttribute(QtCore.Qt.WA_DeleteOnClose)
+		self.dialog.setWindowTitle("Добавление покупателя")
+		self.dialog.setFixedSize(QSize(400, 300))
+
+		self.dialog.paramEditBoxes = []
+		self.dialog.paramNameLabels = []
+		paramNames = ['Имя покупателя', 'Фамилия покупателя', 'Скидка', 'Телефон', 'Клубный статус']
+
+		for i in range(0, len(paramNames)):
+			self.addDialogParam(self.dialog, i, paramNames[i])
+
+		self.dialog.add_buyer_button = QPushButton('Добавить', self.dialog)
+		self.dialog.add_buyer_button.setGeometry(150, 265, 100, 25)
+		self.dialog.add_buyer_button.clicked.connect(self.add_buyer)
+		
+		self.dialog.show()
+		self.dialog.exec()
+
+	def add_buyer(self):
+		params = self.dialog.paramEditBoxes
+		self.db.insert_into_buyers(params[0].text(), params[1].text(), params[2].text(), params[3].text(), params[4].text())
+
+	def addDialogParam(self, dialog, i, paramName):
+		text = QLabel(paramName, dialog)
+		text.setGeometry(10, 10+i*40, 165, 20)
+		text.setAlignment(Qt.AlignCenter)
+		lineedit = QLineEdit("", dialog)
+		lineedit.setGeometry(175, 10+i*40, 165, 20)
+		dialog.paramEditBoxes.append(lineedit)
+		dialog.paramNameLabels.append(text)
+		self.dialog.close()
 
 
 def init():
@@ -156,3 +206,6 @@ def init():
 	window.password_lineedit.setText('1111')
 
 	app.exec()
+
+if __name__ == "__main__":
+	init()
