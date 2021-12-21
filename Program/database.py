@@ -153,6 +153,7 @@ class MyDb:
 
 
 """if __name__ == '__main__':
+    import sqlite3
     db = MyDb(sqlite3.connect('db.sqlite'))
-    print(db.select_all())
-"""
+    print(db.get_buyers())"""
+

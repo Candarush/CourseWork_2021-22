@@ -30,8 +30,7 @@ class TestMyDb(unittest.TestCase):
         Проверка на то,что методу подаются строки и он возвращает список
         :return:
         """
-        self.assertRaises(TypeError, self.mydb.get_by_name(1, 3))  # Проведя этот тест было выяснено, что в методе
-        # get_by_name нет проверки на тип
+        self.assertRaises(TypeError, self.mydb.get_by_name(1, 3))
         self.assertEqual(type(self.mydb.get_by_name('Дима', 'Усенко')), list,
                          'Полученное значение не является списком!')
 
