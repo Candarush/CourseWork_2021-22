@@ -60,4 +60,4 @@ class TestMyDb(unittest.TestCase):
         :return:
         """
         self.assertRaises(TypeError, self.mydb.insert_into_buyers('Вася', 'Никитин', '0.1', '52-01-01', 'Золото'))
-        # self.assertRaises(TypeError, self.mydb.insert_into_buyers(1, 'Никитин', 0.1, '52-01-01', 'Золото'))
+        self.assertRaises(TypeError, self.mydb.insert_into_buyers('Вася', 'Никитин', 0.1, '52-01-01', 'Золото'))
