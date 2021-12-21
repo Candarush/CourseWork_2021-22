@@ -47,10 +47,11 @@ class TestMyDb(unittest.TestCase):
 
     def test_check_user_in_authorization(self):
         """
-        Проверка на то, что методу передаются строки
+        Проверка на то, что методу передаются строки и на то, что возвращается правильное значение
         :return:
         """
         self.assertRaises(TypeError, self.mydb.check_user_in_authorization('admin', 1111))
+        self.assertEqual(self.mydb.check_user_in_authorization("admin", "1111"), 1, 'Возвращается неверное значение')
 
     def test_insert_into_buyers(self):
         """
