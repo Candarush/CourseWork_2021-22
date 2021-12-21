@@ -7,6 +7,7 @@ from PyQt5.QtWidgets import QApplication, QDialog, QLabel, QLineEdit, QMainWindo
 	QWidget
 import pandas as pd
 import sys
+import os.path
 
 sys.path.insert(0, './Program')
 from database import MyDb
@@ -19,8 +20,12 @@ class MainWindow(QMainWindow):
 			Инициализаци окна программы.
 		"""
 		super().__init__()
-		self.db = MyDb(sqlite3.connect(sys.path[1]+'/db.sqlite'))
+		if not os.path.exists('db.sqlite'):
+			print('Отсуствует нужный файл базы данных')
+			raise ConnectionError
 
+		#self.db = MyDb(sqlite3.connect(sys.path[1]+'/db22.sqlite'))
+		self.db = MyDb(sqlite3.connect('db.sqlite'))
 		self.setWindowTitle("I-Mag")
 		self.setFixedSize(QSize(1200, 600))
 
