@@ -20,7 +20,7 @@ class MainWindow(QMainWindow):
 			Инициализаци окна программы.
 		"""
 		super().__init__()
-		if not os.path.exists('db2.sqlite'):
+		if not os.path.exists('db.sqlite'):
 			print('Отсуствует нужный файл базы данных')
 			raise ConnectionError
 
