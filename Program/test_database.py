@@ -31,6 +31,7 @@ class TestMyDb(unittest.TestCase):
         :return:
         """
         self.assertRaises(TypeError, self.mydb.get_by_name(1, 3))
+        self.assertRaises(TypeError, self.mydb.get_by_name('Дима','Усенко'))
         self.assertEqual(type(self.mydb.get_by_name('Дима', 'Усенко')), list,
                          'Полученное значение не является списком!')
 
@@ -39,8 +40,8 @@ class TestMyDb(unittest.TestCase):
         Проверка на то,что методу передается int и он возвращает список
         :return:
         """
-        self.assertRaises(TypeError, self.mydb.get_by_article(10012438300))  # Проведя этот тест было выяснено, что в
-        # методе get_by_article нет проверки на тип
+        self.assertRaises(TypeError, self.mydb.get_by_article(10012438300))
+        self.assertRaises(TypeError, self.mydb.get_by_article("10012438300"))
         self.assertEqual(type(self.mydb.get_by_article("10012438300")), list,
                          'Полученное значение не является списком!')
 
@@ -49,7 +50,8 @@ class TestMyDb(unittest.TestCase):
         Проверка на то, что методу передаются строки и на то, что возвращается правильное значение
         :return:
         """
-        self.assertRaises(TypeError, self.mydb.check_user_in_authorization('admin', 1111))
+        self.assertRaises(TypeError, self.mydb.check_user_in_authorization(208, 1111))
+        self.assertRaises(TypeError, self.mydb.check_user_in_authorization('admin', '1111'))
         self.assertEqual(self.mydb.check_user_in_authorization("admin", "1111"), 1, 'Возвращается неверное значение')
 
     def test_insert_into_buyers(self):
