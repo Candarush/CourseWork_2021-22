@@ -1,6 +1,3 @@
-import sqlite3
-
-
 class MyDb:
 
     def __init__(self, bd):
@@ -77,6 +74,8 @@ class MyDb:
         Возвращает список из кортежей, где каждый кортеж -  Имя товара, цена, арткул, имя магазина, адрес магазина,
         дата покупки.
         """
+        if not isinstance(name, str) and not isinstance(surname, str):
+            raise TypeError("Name and Surname must be string")
         self.curr.execute(f"""
         SELECT Products.name,Products.price,article,Store.name,Store.address,buy_date FROM History
         join Products on History.product_id=Products.product_id
@@ -93,6 +92,8 @@ class MyDb:
         его скидка, имя магазина, адрес магазина,
         дату покупки.
         """
+        if not isinstance(article, str):
+            raise TypeError("Article must be string")
         self.curr.execute(f"""SELECT Products.name,Products.price,Buyers.name,Buyers.surname,Buyers.discount,Store.name,
         Store.address,buy_date FROM History
         join Products on History.product_id=Products.product_id
@@ -107,6 +108,9 @@ class MyDb:
         Возвращает 1, если пользователь есть в таблице авторизации
         Возвращает 0, если пользователя нет в таблице авторизации
         """
+        if not isinstance(login, str) and not isinstance(password, str):
+            raise TypeError("Login and password must be string")
+
         self.curr.execute(f"""select count(login) from Authorization
                                 where login = '{login}' and password='{password}'""")
         user = self.curr.fetchall()[0][0]
@@ -125,6 +129,13 @@ class MyDb:
         :param status: str
         :return: None
         """
+        if not isinstance(name, str) and not isinstance(surname, str):
+            raise TypeError("Name and surname must be string")
+        if not isinstance(discount, float):
+            raise TypeError("Discount must be float")
+        if not isinstance(phone, str) and not isinstance(status, str):
+            raise TypeError("Phone and Status must be string")
+
         self.curr.execute(
             f"""INSERT INTO Buyers(name,surname,discount,phone,status) 
             VALUES('{name}','{surname}',{discount},'{phone}','{status}')""")
@@ -141,6 +152,7 @@ class MyDb:
         print(f"{tablename} contents:", self.curr.fetchall())
 
 
-if __name__ == '__main__':
+"""if __name__ == '__main__':
     db = MyDb(sqlite3.connect('db.sqlite'))
     print(db.select_all())
+"""
