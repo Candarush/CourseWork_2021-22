@@ -1,3 +1,6 @@
+"""
+For full test lauch - make in cmd "python -m unittest"
+"""
 import unittest
 from database import MyDb
 import sqlite3
