@@ -1,7 +1,7 @@
 import sqlite3
 
 
-class MyDb():
+class MyDb:
 
     def __init__(self, bd):
         self.bd = bd
@@ -126,7 +126,8 @@ class MyDb():
         :return: None
         """
         self.curr.execute(
-            f"""INSERT INTO Buyers(name,surname,discount,phone,status) VALUES('{name}','{surname}',{discount},'{phone}','{status}')""")
+            f"""INSERT INTO Buyers(name,surname,discount,phone,status) 
+            VALUES('{name}','{surname}',{discount},'{phone}','{status}')""")
         self.bd.commit()
 
     def close_con(self):
@@ -142,4 +143,4 @@ class MyDb():
 
 if __name__ == '__main__':
     db = MyDb(sqlite3.connect('db.sqlite'))
-    print(db.get_buyers())
+    print(db.select_all())
