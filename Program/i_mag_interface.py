@@ -40,7 +40,7 @@ class MainWindow(QMainWindow):
 		self.login_linedit.setPlaceholderText('Введите логин')
 		self.login_linedit.setGeometry(440, 240, 320, 30)
 
-		self.password_text = QLabel("Password", self.login_area)
+		self.password_text = QLabel("Пароль", self.login_area)
 		self.password_text.setGeometry(440, 274, 320, 16)
 		self.password_text.setAlignment(Qt.AlignCenter)
 
@@ -64,11 +64,8 @@ class MainWindow(QMainWindow):
 		self.db.debug_print('Authorization')
 		if response == 1:
 			self.initialize_main_window()
-			print("Password is correct. Opening main view.")
 		else:
 			self.password_lineedit.setText('')
-			print("Password is not correct. Login:", self.login_linedit.text(),
-				  ", Password:" + self.password_lineedit.text())
 
 	def initialize_main_window(self):
 		"""
@@ -136,6 +133,9 @@ class MainWindow(QMainWindow):
 		"""
 			Сохранение данных таблицы в эксель файл.
 		"""
+		if (self.filename_lineedit.text() == ''):
+			return
+
 		table = self.main_table
 		number_of_rows = table.rowCount()
 		number_of_columns = table.columnCount()
@@ -164,7 +164,7 @@ class MainWindow(QMainWindow):
 
 	def show_history(self):
 		"""
-			Загрзка записей покупок в окно главной таблицы.
+			Загрузка записей покупок в окно главной таблицы.
 		"""
 		history = self.db.select_all()
 		self.show_table_data(history,
@@ -173,7 +173,7 @@ class MainWindow(QMainWindow):
 
 	def show_bought_products(self):
 		"""
-			Загрзка записей о покупках в окно главной таблицы.
+			Загрузка записей о покупках в окно главной таблицы.
 		"""
 		bought_products = self.db.get_by_name(self.bought_products_name_lineedit.text(),
 											  self.bought_products_surname_lineedit.text())
@@ -183,7 +183,7 @@ class MainWindow(QMainWindow):
 
 	def show_product_buyers(self):
 		"""
-			Загрзка записей о покупателях для конкретного товара в окно главной таблицы.
+			Загрузка записей о покупателях для конкретного товара в окно главной таблицы.
 		"""
 		bought_products = self.db.get_by_article(self.product_buyers_article_lineedit.text())
 		self.show_table_data(bought_products,
@@ -192,7 +192,7 @@ class MainWindow(QMainWindow):
 
 	def show_buyers(self):
 		"""
-			Загрзка записей о всех покупателях и их клубных картах в окно главной таблицы.
+			Загрузка записей о всех покупателях и их клубных картах в окно главной таблицы.
 		"""
 		bought_products = self.db.get_buyers()
 		self.show_table_data(bought_products,
